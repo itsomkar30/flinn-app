@@ -10,10 +10,10 @@ type PostListItemProps = {
     post: Post
 }
 
-export default function PostListItem({post} : PostListItemProps) {
+export default function PostListItem({ post }: PostListItemProps) {
     // const post = posts[0];
     return (
-        <View style={{ paddingVertical: 10, paddingHorizontal: 15,borderBottomColor: 'lightgrey', borderBottomWidth: 0.5 }} >
+        <View style={{ paddingVertical: 10, paddingHorizontal: 15, borderBottomColor: 'lightgrey', borderBottomWidth: 0.5 }} >
 
             {/*header */}
             <View style={{ flexDirection: 'row', gap: '10' }}>
@@ -44,14 +44,17 @@ export default function PostListItem({post} : PostListItemProps) {
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={[{ flexDirection: 'row' }, styles.iconBox]}>
                         <MaterialCommunityIcons name="heart-outline" size={18} color={colors.appSecondary} />
-                        <Text style={{ fontFamily: "outfit-medium", fontWeight: '500', marginLeft: 5, alignSelf: 'center' }} >{post.upvotes}</Text>
+                        <Text style={{
+                            fontFamily: "outfit-medium", fontWeight: '500', marginLeft: 5, alignSelf: 'center', color: colors.textPrimary
+
+                        }} >{post.upvotes}</Text>
                         <View style={{ width: 1, backgroundColor: '#D4D4D4', height: 14, marginHorizontal: 7, alignSelf: 'center' }} />
                         <MaterialCommunityIcons name="minus-circle-outline" size={18} color={colors.appSecondary} />
                     </View>
 
                     <View style={[{ flexDirection: 'row' }, styles.iconBox]}>
                         <MaterialCommunityIcons name="chat-outline" size={18} color={colors.appSecondary} />
-                        <Text style={{ fontFamily: "outfit-medium", marginLeft: 5, alignSelf: 'center' }} >{post.nr_of_comments}</Text>
+                        <Text style={{ fontFamily: "outfit-medium", marginLeft: 5, alignSelf: 'center', color: colors.textPrimary }} >{post.nr_of_comments}</Text>
                     </View>
 
                 </View>
@@ -91,7 +94,8 @@ const styles = StyleSheet.create({
     postTitle: {
         fontFamily: "outfit-bold",
         fontSize: 18,
-        letterSpacing: 0.3
+        letterSpacing: 0.3,
+        color: colors.textPrimary
 
     },
     postDescription: {
@@ -99,7 +103,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         letterSpacing: 0.3,
         marginTop: 10,
-        marginBottom: 15
+        marginBottom: 15,
+        color: colors.textPrimary
     },
     iconBox: {
         borderWidth: 0.5,

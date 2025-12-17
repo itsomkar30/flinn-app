@@ -1,28 +1,36 @@
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { colors } from '../../../constants/colors';
+import { colors } from '../../../../constants/colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAuth } from '@clerk/clerk-expo';
 
 
 
 
 export default function TabLayout() {
+    const { signOut } = useAuth();
     return (
         <Tabs screenOptions={{
-             headerStyle: {
+            headerStyle: {
                 backgroundColor: colors.appPrimary,
             },
             tabBarActiveTintColor: colors.appTheme,
             tabBarStyle: {
                 backgroundColor: colors.appPrimary
-            }
+            },
+            headerRight: () => (
+                <TouchableOpacity onPress={() => signOut()} style={{ marginRight: 15 }}>
+                    <Feather name="log-out" size={20} color={colors.appSecondary} />
+                </TouchableOpacity>
+            )
+
         }}>
             <Tabs.Screen name="index" options={{
                 title: "Home",
-                headerTitle:"Flinn",
+                headerTitle: "Flinn",
                 headerTitleAlign: "center",
                 headerTintColor: colors.appTheme,
                 headerTitleStyle: {
