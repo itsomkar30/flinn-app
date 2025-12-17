@@ -1,16 +1,19 @@
 import React from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
-import posts from '../assets/data/posts.json'
-import { colors } from '../constants/colors';
+import posts from '../../assets/data/posts.json'
+import { colors } from '../../constants/colors';
 import { formatDistanceToNowStrict } from 'date-fns';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Post } from '../types'
 
+type PostListItemProps = {
+    post: Post
+}
 
-
-export default function PostListItem() {
-    const post = posts[0];
+export default function PostListItem({post} : PostListItemProps) {
+    // const post = posts[0];
     return (
-        <View style={{ paddingVertical: 10, paddingHorizontal: 15 }} >
+        <View style={{ paddingVertical: 10, paddingHorizontal: 15,borderBottomColor: 'lightgrey', borderBottomWidth: 0.5 }} >
 
             {/*header */}
             <View style={{ flexDirection: 'row', gap: '10' }}>
@@ -82,7 +85,8 @@ const styles = StyleSheet.create({
         width: "100%",
         aspectRatio: 4 / 3,
         borderRadius: 10,
-        marginVertical: 10
+        marginTop: 10,
+        marginBottom: 15
     },
     postTitle: {
         fontFamily: "outfit-bold",
@@ -94,6 +98,8 @@ const styles = StyleSheet.create({
         fontFamily: "outfit",
         fontSize: 14,
         letterSpacing: 0.3,
+        marginTop: 10,
+        marginBottom: 15
     },
     iconBox: {
         borderWidth: 0.5,
