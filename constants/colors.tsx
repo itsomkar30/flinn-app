@@ -1,4 +1,7 @@
 export const colors = {
-"primary":"#9D00FF",
-"dark":"#181818"
+    "appTheme": "#9D00FF",
+    "appPrimary": "#dadada",
+    "appSecondary": "#181818",
+    "textPrimary": "#000000",
+    "textSecondary": "#ffffff"
 }

@@ -8,22 +8,23 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 
+
 export default function TabLayout() {
     return (
         <Tabs screenOptions={{
              headerStyle: {
-                backgroundColor: colors.dark,
+                backgroundColor: colors.appPrimary,
             },
-            tabBarActiveTintColor: colors.primary,
+            tabBarActiveTintColor: colors.appTheme,
             tabBarStyle: {
-                backgroundColor: colors.dark
+                backgroundColor: colors.appPrimary
             }
         }}>
             <Tabs.Screen name="index" options={{
                 title: "Home",
-
+                headerTitle:"Flinn",
                 headerTitleAlign: "center",
-                headerTintColor: colors.primary,
+                headerTintColor: colors.appTheme,
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
@@ -34,7 +35,7 @@ export default function TabLayout() {
             <Tabs.Screen name="chat" options={{
                 title: "Chat",
                 headerTitleAlign: "center",
-                headerTintColor: colors.primary,
+                headerTintColor: colors.appTheme,
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
@@ -44,7 +45,7 @@ export default function TabLayout() {
             <Tabs.Screen name="create" options={{
                 title: "Create",
                 headerTitleAlign: "center",
-                headerTintColor: colors.primary,
+                headerTintColor: colors.appTheme,
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
@@ -55,7 +56,7 @@ export default function TabLayout() {
             <Tabs.Screen name="clans" options={{
                 title: "Clans",
                 headerTitleAlign: "center",
-                headerTintColor: colors.primary,
+                headerTintColor: colors.appTheme,
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
@@ -66,7 +67,7 @@ export default function TabLayout() {
             <Tabs.Screen name="inbox" options={{
                 title: "Inbox",
                 headerTitleAlign: "center",
-                headerTintColor: colors.primary,
+                headerTintColor: colors.appTheme,
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
