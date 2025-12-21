@@ -57,6 +57,8 @@ export default function TabLayout() {
                 headerTitleStyle: {
                     fontFamily: "outfit",
                 },
+                headerShown: false,
+                tabBarStyle: { display: 'none' },
                 tabBarIcon: ({ color }) => <AntDesign name="plus-circle" size={20} color={color} />
             }} />
 
