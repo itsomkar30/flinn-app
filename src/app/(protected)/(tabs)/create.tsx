@@ -1,14 +1,17 @@
-import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
+import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../../../constants/colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router'
+import { selectedClanAtom } from '../../../atoms';
+import { Link, router } from 'expo-router'
+import { useAtom } from 'jotai'
 
 export default function CreateScreen() {
 
   const [title, setTitle] = useState<string>("")
   const [postText, setPostText] = useState<string>("")
+  const [clan, setClan] = useAtom(selectedClanAtom)
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.appPrimary, flex: 1, paddingHorizontal: 10 }}>
@@ -26,10 +29,26 @@ export default function CreateScreen() {
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} style={{ paddingVertical: 10 }}>
-          <View style={styles.clanContainer}>
-            <Text style={styles.cStyle}>c/</Text>
-            <Text style={{ fontFamily: 'outfit-medium' }}>Select a clan</Text>
-          </View>
+
+          <Link href={"clanSelector"} asChild>
+            <Pressable style={styles.clanContainer}>
+              {clan ? (
+                <>
+                  <Image source={{ uri: clan.image }}
+                    style={{ height: 20, aspectRatio: 1, borderRadius: 20 }} />
+
+                  <Text style={{ fontFamily: 'outfit-medium' }}>{clan.name}</Text>
+                </>
+              ) :
+                (
+                  <>
+                    <Text style={styles.cStyle}>c/</Text>
+                    <Text style={{ fontFamily: 'outfit-medium' }}>Select a clan</Text>
+                  </>
+                )}
+
+            </Pressable>
+          </Link>
 
           {/* Create Post Section Inputs*/}
 

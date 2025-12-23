@@ -25,6 +25,8 @@ export default function AuthLayout() {
                     </Pressable>
                 ),
             }} />
+
+            <Stack.Screen name='2fa' options={{ title: 'Two Factor Authentication', headerTitleAlign: 'center' }} />
         </Stack>
     )
 }

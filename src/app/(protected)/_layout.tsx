@@ -14,6 +14,7 @@ export default function AppLayout() {
     }
     return <Stack >
         <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+        <Stack.Screen name='clanSelector' options={{ headerShown: false }} />
         <Stack.Screen name='post/[id]'
             options={{
                 headerTitle: '',

@@ -16,6 +16,8 @@ export default function Page() {
     const onSignInPress = async () => {
         if (!isLoaded) return
 
+        console.log('Attempting sign in with:', emailAddress)
+
         // Start the sign-in process using the email and password provided
         try {
             const signInAttempt = await signIn.create({
@@ -23,20 +25,28 @@ export default function Page() {
                 password,
             })
 
+            console.log('Sign in attempt status:', signInAttempt.status)
+
             // If sign-in process is complete, set the created session as active
             // and redirect the user
             if (signInAttempt.status === 'complete') {
                 await setActive({ session: signInAttempt.createdSessionId })
+                console.log('Sign in successful, redirecting...')
                 router.replace('/')
+            } else if (signInAttempt.status === 'needs_second_factor') {
+                // Handle 2FA by navigating to verification screen
+                router.push('/verify-2fa')
             } else {
                 // If the status isn't complete, check why. User might need to
                 // complete further steps.
-                console.error(JSON.stringify(signInAttempt, null, 2))
+                console.log('Sign in incomplete:', JSON.stringify(signInAttempt, null, 2))
+                alert('Sign in incomplete. Check console for details.')
             }
-        } catch (err) {
+        } catch (err: any) {
             // See https://clerk.com/docs/custom-flows/error-handling
             // for more info on error handling
-            console.error(JSON.stringify(err, null, 2))
+            console.error('Sign in error:', JSON.stringify(err, null, 2))
+            alert(`Sign in failed: ${err.errors?.[0]?.message || err.message || 'Unknown error'}`)
         }
     }
 
