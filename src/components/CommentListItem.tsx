@@ -1,14 +1,20 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Pressable, FlatList } from "react-native";
 import { Entypo, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Comment } from "../types";
+import React, { useState, useRef, memo } from "react";
+import { colors } from "../../constants/colors";
 
 type CommentListItemProps = {
     comment: Comment;
+    depth: number;
+    replyCommentButton: (commentId: string) => void
 }
 
-const CommentListItem = ({ comment }: CommentListItemProps) => {
-
+let a = 0
+const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItemProps) => {
+    console.log(`rendered ${a += 1}`)
+    const [shouldShowReplies, setShouldShowReplies] = useState<boolean>(false)
     return (
         <View
             style={{
@@ -18,6 +24,7 @@ const CommentListItem = ({ comment }: CommentListItemProps) => {
                 paddingVertical: 5,
                 gap: 10,
                 borderLeftColor: "#E5E7EB",
+                borderLeftWidth: depth > 0 ? 1 : 0
             }}
         >
             {/* User Info */}
@@ -41,7 +48,12 @@ const CommentListItem = ({ comment }: CommentListItemProps) => {
             {/* Comment Actions */}
             <View style={{ flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: 14 }}>
                 <Entypo name="dots-three-horizontal" size={15} color="#737373" />
-                <Octicons name="reply" size={16} color="#737373" onPress={() => console.log('Reply button pressed')} />
+                <Octicons name="reply"
+                    size={16}
+                    color="#737373"
+                    onPress={() => replyCommentButton(comment.id)}
+                />
+
                 <MaterialCommunityIcons name="trophy-outline" size={16} color="#737373" />
                 <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
                     <MaterialCommunityIcons name="heart-outline" size={18} color="#737373" />
@@ -49,9 +61,48 @@ const CommentListItem = ({ comment }: CommentListItemProps) => {
                     <MaterialCommunityIcons name="minus-circle-outline" size={18} color="#737373" />
                 </View>
             </View>
+
+
+            {!!comment.replies.length && !shouldShowReplies && (
+                <Pressable
+                    onPress={() => setShouldShowReplies(true)}
+                    style={{
+                        backgroundColor: colors.appPrimary,
+                        paddingVertical: 5,
+                        borderRadius: 3,
+                        alignItems: 'center'
+                    }}>
+                    <Text style={{ fontFamily: 'outfit', letterSpacing: 0.5 }}>Show Replies</Text>
+                </Pressable>
+
+            )}
+
+
+            {/* Reply Comments List */}
+            {/* {shouldShowReplies && (<FlatList
+                data={comment.replies}
+                renderItem={({ item }) =>
+                    <CommentListItem comment={item} depth={depth + 1} replyCommentButton={replyCommentButton}
+                    />}
+            />
+            )} */}
+
+            {shouldShowReplies && comment.replies.map((item) => (
+
+                <CommentListItem comment={item}
+                    key={comment.id}
+                    depth={depth + 1}
+                    replyCommentButton={replyCommentButton}
+                />
+
+            ))}
+
+
+
+
         </View>
 
     )
 };
 
-export default CommentListItem;
+export default memo(CommentListItem);

@@ -25,6 +25,7 @@ export default function PostListItem({ post, isDetailedPost }: PostListItemProps
                     borderBottomColor: 'lightgrey',
                     borderBottomWidth: 0.5,
                     width: "100%",
+                    minWidth: "100%"
 
 
                 }} >

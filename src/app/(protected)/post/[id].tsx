@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
     View,
     Text,
@@ -28,7 +28,7 @@ export default function DetailedPost() {
     const insets = useSafeAreaInsets();
     if (!detailedPost) return <Text>Post not found</Text>;
 
-    const INPUT_BAR_HEIGHT = 80; // tune if you change paddings
+    const INPUT_BAR_HEIGHT = 80;
 
     // animated translate for bottom bar
     const translateY = useRef(new Animated.Value(0)).current;
@@ -66,22 +66,34 @@ export default function DetailedPost() {
         };
     }, [translateY]);
 
-    // Use KeyboardAvoidingView only on iOS (optional). On Android we control bar via animation.
     const Wrapper: any = Platform.OS === "ios" ? KeyboardAvoidingView : View;
     const wrapperProps =
         Platform.OS === "ios"
             ? { behavior: "padding" as const, keyboardVerticalOffset: insets.top, style: { flex: 1 } }
             : { style: { flex: 1 } };
 
+    const replyCommentButton = useCallback(
+        (comment: string) => {
+            console.log(comment)
+            textInputRef.current?.focus()
+        }, []
+    )
+
+    const textInputRef = useRef<TextInput | null>(null)
+
     return (
         <Wrapper {...wrapperProps}>
             <FlatList
                 data={postComments}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <CommentListItem comment={item} />}
-                ListHeaderComponent={<PostListItem post={detailedPost} isDetailedPost />}
+                renderItem={({ item }) =>
+                    <CommentListItem comment={item} depth={0} replyCommentButton={replyCommentButton} />
+                }
+                ListHeaderComponent={
+                    <PostListItem post={detailedPost}
+                        isDetailedPost />
+                }
                 keyboardShouldPersistTaps="handled"
-                // Reserve exactly the input height + current keyboard height so last items scroll above the keyboard
                 contentContainerStyle={{
                     paddingBottom: INPUT_BAR_HEIGHT + (keyboardHeight || 0) + (Platform.OS === "ios" ? insets.bottom : 8),
                 }}
@@ -108,6 +120,7 @@ export default function DetailedPost() {
                 }}
             >
                 <TextInput
+                    ref={textInputRef}
                     placeholder="Join the conversation..."
                     placeholderTextColor="grey"
                     style={{
