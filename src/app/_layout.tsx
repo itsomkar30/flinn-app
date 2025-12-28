@@ -4,6 +4,9 @@ import React from 'react'
 import { Slot, Stack } from 'expo-router'
 import { ClerkProvider } from '@clerk/clerk-expo'
 import { tokenCache } from '@clerk/clerk-expo/token-cache'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient();
 
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
@@ -19,8 +22,10 @@ export default function RootLayout() {
     'outfit-bold': require('../../assets/fonts/Outfit-Bold.ttf')
   })
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <Slot />
-    </ClerkProvider>
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <Slot />
+      </ClerkProvider>
+    </QueryClientProvider>
   )
 }
