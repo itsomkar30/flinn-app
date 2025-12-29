@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native'
+import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, Image, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../../../constants/colors'
@@ -6,12 +6,56 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { selectedClanAtom } from '../../../atoms';
 import { Link, router } from 'expo-router'
 import { useAtom } from 'jotai'
+import { useMutation } from '@tanstack/react-query';
+import { supabase } from '../../../lib/supabase';
+import { TablesInsert } from '../../../types/database.types';
+import { goBack } from 'expo-router/build/global-state/routing';
+
+type InsertPost = TablesInsert<"posts">
 
 export default function CreateScreen() {
 
   const [title, setTitle] = useState<string>("")
   const [postText, setPostText] = useState<string>("")
   const [clan, setClan] = useAtom(selectedClanAtom)
+
+  const insertPost = async (post: InsertPost) => {
+    const { data, error } = await supabase.from("posts")
+      .insert(post)
+      .select().
+      single();
+
+    if (error) {
+      throw error
+    }
+    else {
+      return data
+    }
+  }
+
+
+  const { mutate, isPending, data, error } = useMutation({
+    mutationFn: () => insertPost({
+      title,
+      description: postText,
+      group_id: "6c1922cf-b080-493b-9997-7b797731d485",
+      user_id: "a8954a50-80c8-4b5d-8856-cade18afeea7"
+    }),
+    onSuccess: (data) => {
+      console.log(data)
+      goBack();
+
+    },
+
+    onError: (error) => {
+      console.log(error)
+      Alert.alert("Failed to post")
+    }
+  })
+
+  console.log(error)
+
+
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.appPrimary, flex: 1, paddingHorizontal: 10 }}>
@@ -20,8 +64,13 @@ export default function CreateScreen() {
 
       <View style={{ flexDirection: 'row', alignItems: 'center' }} >
         <Ionicons name="close-sharp" size={28} color="black" onPress={() => router.back()} />
-        <Pressable style={{ marginLeft: 'auto' }} >
-          <Text style={styles.postButton} >Post</Text>
+        <Pressable
+          onPress={() => mutate()}
+          disabled={isPending}
+          style={{ marginLeft: 'auto' }} >
+          <Text style={styles.postButton} >
+            {isPending ? "Posting.." : "Post"}
+          </Text>
         </Pressable>
       </View>
 

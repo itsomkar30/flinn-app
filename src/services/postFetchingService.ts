@@ -4,7 +4,7 @@ export const fetchPosts = async () => {
     const { error, data } = await supabase.from("posts")
         .select(
             "*, group:groups(*), user:users!posts_user_id_fkey(*)"
-        )
+        ).order('created_at', { ascending: false })
     console.log("data", JSON.stringify(data, null, 2))
     console.log("error", error)
     if (error) {

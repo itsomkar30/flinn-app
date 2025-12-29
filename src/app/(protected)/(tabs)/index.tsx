@@ -22,7 +22,7 @@ export default function HomeScreen() {
   // const [isLoading, setIsLoading] = useState(false);
 
 
-  const { data: posts, isLoading, error } = useQuery({
+  const { data: posts, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["posts"],
     queryFn: () => fetchPosts(),
     staleTime: 10_000
@@ -56,10 +56,13 @@ export default function HomeScreen() {
 
       <FlatList
         data={posts}
+        showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) =>
           <PostListItem post={item}
           />}
+        onRefresh={refetch}
+        refreshing={isRefetching}
       />
     </View>
   )
