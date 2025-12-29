@@ -6,27 +6,15 @@ import { supabase } from '../../../lib/supabase';
 import { useEffect, useState } from 'react';
 import { Tables } from '../../../types/database.types';
 import { useQuery } from '@tanstack/react-query';
+import { fetchPosts } from '../../../services/postFetchingService';
 
 type Post = Tables<"posts"> & {
-  user: Tables<'users'>;
-  group: Tables<'groups'>;
+  user: Tables<'users'> | null;
+  group: Tables<'groups'> | null;
 }
 
 
-const fetchPosts = async () => {
-  const { error, data } = await supabase.from("posts")
-    .select(
-      "*, group: groups(*), user:posts_user_id_fkey(*)"
-    )
-  console.log("data", JSON.stringify(data, null, 2))
-  console.log("error", error)
-  if (error) {
-    console.log(error)
-    throw error
-  } else {
-    return data
-  }
-}
+
 
 
 export default function HomeScreen() {
@@ -35,7 +23,7 @@ export default function HomeScreen() {
 
 
   const { data: posts, isLoading, error } = useQuery({
-    queryKey: ['posts'],
+    queryKey: ["posts"],
     queryFn: () => fetchPosts(),
 
   })
@@ -47,18 +35,27 @@ export default function HomeScreen() {
 
 
   if (isLoading) {
-    return <ActivityIndicator />
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
   }
+
   if (error) {
-    return <Text>Error fetching posts</Text>
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontFamily: 'outfit' }}>Failed to load posts</Text>
+      </View>
+    );
   }
   return (
     <View style={{ backgroundColor: 'white' }} >
-      {/* <PostListItem post={posts[0]} />
-      <PostListItem post={posts[4]} /> */}
+
 
       <FlatList
         data={posts}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) =>
           <PostListItem post={item}
           />}

@@ -8,25 +8,38 @@ import {
     Pressable,
     Keyboard,
     Animated,
+    ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import posts from "../../../../assets/data/posts.json";
+
 import comments from "../../../../assets/data/comments.json";
 import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
 import { colors } from "../../../../constants/colors";
 import { KeyboardAvoidingView } from "react-native";
+import { fetchPostsById } from "../../../services/postFetchingService";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../../../lib/supabase";
 
 export default function DetailedPost() {
-    const { id } = useLocalSearchParams();
-    const detailedPost = posts.find((p) => p.id === id);
+    const { id } = useLocalSearchParams<{ id: string }>();
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["posts", id],
+        queryFn: () => fetchPostsById(id)
+    })
+
+    const detailedPost = data ?? null;
+
+
+
+    // const detailedPost = posts.find((p) => p.id === id);
     const postComments = comments.filter((c) => c.post_id === id);
     const [comment, setComment] = useState<string>("");
 
     const insets = useSafeAreaInsets();
-    if (!detailedPost) return <Text>Post not found</Text>;
+    // if (!detailedPost) return <Text>Post not found</Text>;
 
     const INPUT_BAR_HEIGHT = 80;
 
@@ -79,7 +92,26 @@ export default function DetailedPost() {
         }, []
     )
 
+
+
     const textInputRef = useRef<TextInput | null>(null)
+
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator />
+            </View>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'outfit' }}>Failed to load posts</Text>
+            </View>
+        );
+    }
 
     return (
         <Wrapper {...wrapperProps}>

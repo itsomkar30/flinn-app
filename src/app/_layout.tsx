@@ -5,6 +5,7 @@ import { Slot, Stack } from 'expo-router'
 import { ClerkProvider } from '@clerk/clerk-expo'
 import { tokenCache } from '@clerk/clerk-expo/token-cache'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useReactQueryDevTools } from '@dev-plugins/react-query'
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ if (!publishableKey) {
 }
 
 export default function RootLayout() {
+  useReactQueryDevTools(queryClient);
   useFonts({
     'outfit': require('../../assets/fonts/Outfit-Regular.ttf'),
     'outfit-medium': require('../../assets/fonts/Outfit-Medium.ttf'),
