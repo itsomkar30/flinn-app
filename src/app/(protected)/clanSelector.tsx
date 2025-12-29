@@ -1,4 +1,4 @@
-import { View, Text, TextInput, FlatList, Pressable, Image, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, TextInput, FlatList, Pressable, Image, KeyboardAvoidingView, ActivityIndicator, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,18 +7,49 @@ import { colors } from '../../../constants/colors';
 import groups from '../../../assets/data/groups.json';
 import { selectedClanAtom } from '../../atoms';
 import { useSetAtom } from 'jotai';
-import { Group } from '../../types';
+// import { Group } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { fetchGroups } from '../../services/groupFetchingService';
+import { Tables } from '../../types/database.types';
+
+type Group = Tables<"groups">
 
 export default function GroupSelector() {
     const [searchValue, setSearchValue] = useState<string>("")
     const setClan = useSetAtom(selectedClanAtom)
+
+
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['groups', { searchValue }],
+        queryFn: () => fetchGroups(searchValue),
+        staleTime: 5_000,
+        placeholderData: (previousData) => previousData
+    })
 
     const onClanSelected = (clan: Group) => {
         setClan(clan)
         router.back()
     }
 
-    const searchClanByName = groups.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase()))
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator />
+            </View>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'outfit' }}>Failed to load groups</Text>
+            </View>
+        );
+    }
+
+    // const searchClanByName = data.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase()))
+
     return (
         <SafeAreaView style={{ backgroundColor: 'white', flex: 1, paddingHorizontal: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10 }}>
@@ -53,7 +84,7 @@ export default function GroupSelector() {
 
 
                 <FlatList
-                    data={searchClanByName}
+                    data={data}
                     renderItem={({ item }) => (
                         <Pressable
                             onPress={() => onClanSelected(item)}

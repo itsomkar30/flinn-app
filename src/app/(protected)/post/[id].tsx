@@ -1,19 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import {
-    View,
-    Text,
-    FlatList,
-    TextInput,
-    Platform,
-    Pressable,
-    Keyboard,
-    Animated,
-    ActivityIndicator,
-} from "react-native";
+import { View, Text, FlatList, TextInput, Platform, Pressable, Keyboard, Animated, ActivityIndicator, } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-
 import comments from "../../../../assets/data/comments.json";
 import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
@@ -25,12 +13,14 @@ import { supabase } from "../../../lib/supabase";
 
 export default function DetailedPost() {
     const { id } = useLocalSearchParams<{ id: string }>();
+
     const { data, isLoading, error } = useQuery({
         queryKey: ["posts", id],
-        queryFn: () => fetchPostsById(id)
+        queryFn: () => fetchPostsById(id),
+        staleTime: 10_000
     })
 
-    const detailedPost = data ?? null;
+    const detailedPost = data;
 
 
 
@@ -112,6 +102,7 @@ export default function DetailedPost() {
             </View>
         );
     }
+
 
     return (
         <Wrapper {...wrapperProps}>
