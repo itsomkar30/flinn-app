@@ -32,10 +32,10 @@ export default function Page() {
             if (signInAttempt.status === 'complete') {
                 await setActive({ session: signInAttempt.createdSessionId })
                 console.log('Sign in successful, redirecting...')
-                router.replace('/')
+                router.replace('/(protected)/(tabs)/')
             } else if (signInAttempt.status === 'needs_second_factor') {
                 // Handle 2FA by navigating to verification screen
-                router.push('/verify-2fa')
+                router.push('/2fa')
             } else {
                 // If the status isn't complete, check why. User might need to
                 // complete further steps.

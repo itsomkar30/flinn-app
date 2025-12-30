@@ -11,9 +11,16 @@ export default function Verify2FA() {
 
     React.useEffect(() => {
         if (signIn && signIn.status === 'needs_second_factor') {
-            signIn.prepareSecondFactor({ strategy: 'email_code' })
+            const prepareCode = async () => {
+                try {
+                    await signIn.prepareSecondFactor({ strategy: 'email_code' })
+                } catch (err) {
+                    console.error('Error preparing 2FA:', err)
+                }
+            }
+            prepareCode()
         }
-    }, [signIn])
+    }, [])
 
     const onVerifyPress = async () => {
         if (!isLoaded) return
@@ -24,7 +31,7 @@ export default function Verify2FA() {
             })
             if (signInAttempt.status === 'complete') {
                 await setActive({ session: signInAttempt.createdSessionId })
-                router.replace('/')
+                router.replace('/(protected)/(tabs)/')
             }
         } catch (err) {
             console.error(JSON.stringify(err, null, 2))
