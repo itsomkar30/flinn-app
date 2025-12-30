@@ -1,9 +1,10 @@
-import { supabase } from "../lib/supabase"
+import { SupabaseClient } from "@supabase/supabase-js"
+import { Database } from "../types/database.types"
 
-export const fetchPosts = async () => {
+export const fetchPosts = async (supabase: SupabaseClient<Database>) => {
     const { error, data } = await supabase.from("posts")
         .select(
-            "*, group:groups(*), user:users!posts_user_id_fkey(*)"
+            "*, group:groups(*)"
         ).order('created_at', { ascending: false })
     console.log("data", JSON.stringify(data, null, 2))
     console.log("error", error)
@@ -16,10 +17,10 @@ export const fetchPosts = async () => {
 }
 
 
-export const fetchPostsById = async (id: string) => {
+export const fetchPostsById = async (id: string, supabase: SupabaseClient<Database>) => {
     const { error, data } = await supabase.from("posts")
         .select(
-            "*, group: groups(*), user:users!posts_user_id_fkey(*)"
+            "*, group: groups(*)"
         ).eq("id", id)
         .single()
     console.log("data", JSON.stringify(data, null, 2))

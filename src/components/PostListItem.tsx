@@ -9,7 +9,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Link } from 'expo-router';
 
 type Post = Tables<"posts"> & {
-    user: Tables<'users'>;
+    // user: Tables<'users'>;
     group: Tables<'groups'>;
 }
 
@@ -45,7 +45,7 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
                             <Text style={{ fontFamily: "outfit", fontWeight: 'bold', color: colors.textPrimary }} >{post.group.name}</Text>
                             <Text style={{ fontFamily: "outfit", color: "grey" }} >{formatDistanceToNowStrict(new Date(post.created_at))}</Text>
                         </View>
-                        {isDetailedPost && <Text style={{ color: 'grey', fontSize: 13 }} >{post.user.name}</Text>}
+                        {isDetailedPost && <Text style={{ color: 'grey', fontSize: 13 }} >{post.user?.name}</Text>}
                     </View>
                     <View style={{ marginLeft: "auto" }}>
                         <Text style={styles.joinBtn}>Join</Text>

@@ -9,14 +9,15 @@ import { colors } from "../../../../constants/colors";
 import { KeyboardAvoidingView } from "react-native";
 import { fetchPostsById } from "../../../services/postFetchingService";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../../lib/supabase";
+import { useSupabase } from "../../../lib/supabase";
 
 export default function DetailedPost() {
     const { id } = useLocalSearchParams<{ id: string }>();
+    const supabase = useSupabase();
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["posts", id],
-        queryFn: () => fetchPostsById(id),
+        queryFn: () => fetchPostsById(id, supabase),
         staleTime: 10_000
     })
 

@@ -6,10 +6,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { selectedClanAtom } from '../../../atoms';
 import { Link, router } from 'expo-router'
 import { useAtom } from 'jotai'
-import { useMutation } from '@tanstack/react-query';
-import { supabase } from '../../../lib/supabase';
-import { TablesInsert } from '../../../types/database.types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Database, TablesInsert } from '../../../types/database.types';
 import { goBack } from 'expo-router/build/global-state/routing';
+import { useSupabase } from '../../../lib/supabase';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 type InsertPost = TablesInsert<"posts">
 
@@ -18,8 +19,10 @@ export default function CreateScreen() {
   const [title, setTitle] = useState<string>("")
   const [postText, setPostText] = useState<string>("")
   const [clan, setClan] = useAtom(selectedClanAtom)
+  const queryClient = useQueryClient()
+  const supabase = useSupabase()
 
-  const insertPost = async (post: InsertPost) => {
+  const insertPost = async (post: InsertPost, supabase: SupabaseClient<Database>) => {
     const { data, error } = await supabase.from("posts")
       .insert(post)
       .select().
@@ -35,21 +38,32 @@ export default function CreateScreen() {
 
 
   const { mutate, isPending, data, error } = useMutation({
-    mutationFn: () => insertPost({
-      title,
-      description: postText,
-      group_id: "6c1922cf-b080-493b-9997-7b797731d485",
-      user_id: "a8954a50-80c8-4b5d-8856-cade18afeea7"
-    }),
+    mutationFn: () => {
+      if (!clan) {
+        throw new Error("Please select a clan")
+      }
+      if (!title) {
+        throw new Error("Title is required")
+      }
+
+      return insertPost({
+        title,
+        description: postText,
+        group_id: clan.id,
+      },
+        supabase
+      )
+    },
     onSuccess: (data) => {
       console.log(data)
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
       goBack();
 
     },
 
     onError: (error) => {
       console.log(error)
-      Alert.alert("Failed to post")
+      Alert.alert("Failed to post", error.message)
     }
   })
 

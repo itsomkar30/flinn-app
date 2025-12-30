@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Tables } from '../../../types/database.types';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPosts } from '../../../services/postFetchingService';
+import { useSupabase } from '../../../lib/supabase';
 
 type Post = Tables<"posts"> & {
   user: Tables<'users'> | null;
@@ -20,11 +21,12 @@ type Post = Tables<"posts"> & {
 export default function HomeScreen() {
   // const [posts, setPosts] = useState<Post[]>([]);
   // const [isLoading, setIsLoading] = useState(false);
+  const supabase = useSupabase()
 
 
   const { data: posts, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["posts"],
-    queryFn: () => fetchPosts(),
+    queryFn: () => fetchPosts(supabase),
     staleTime: 10_000
 
   })
