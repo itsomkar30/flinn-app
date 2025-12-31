@@ -11,6 +11,9 @@ import { Database, TablesInsert } from '../../../types/database.types';
 import { goBack } from 'expo-router/build/global-state/routing';
 import { useSupabase } from '../../../lib/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { useUser } from "@clerk/clerk-expo";
+
+
 
 type InsertPost = TablesInsert<"posts">
 
@@ -20,6 +23,7 @@ export default function CreateScreen() {
   const [postText, setPostText] = useState<string>("")
   const [clan, setClan] = useAtom(selectedClanAtom)
   const queryClient = useQueryClient()
+  const { user } = useUser();
   const supabase = useSupabase()
 
   const insertPost = async (post: InsertPost, supabase: SupabaseClient<Database>) => {

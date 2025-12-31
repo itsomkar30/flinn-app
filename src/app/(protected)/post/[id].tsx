@@ -1,24 +1,45 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { View, Text, FlatList, TextInput, Platform, Pressable, Keyboard, Animated, ActivityIndicator, } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View, Text, FlatList, TextInput, Platform, Pressable, Keyboard, Animated, ActivityIndicator, Alert, } from "react-native";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import comments from "../../../../assets/data/comments.json";
 import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
 import { colors } from "../../../../constants/colors";
 import { KeyboardAvoidingView } from "react-native";
-import { fetchPostsById } from "../../../services/postFetchingService";
-import { useQuery } from "@tanstack/react-query";
+import { deletePostById, fetchPostsById } from "../../../services/postFetchingService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "../../../lib/supabase";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useUser } from "@clerk/clerk-expo";
 
 export default function DetailedPost() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const supabase = useSupabase();
+    const queryClient = useQueryClient()
+    const { user } = useUser();
+    const currentUserId = user?.id;
+
+
+
+
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["posts", id],
         queryFn: () => fetchPostsById(id, supabase),
         staleTime: 10_000
+    })
+
+    const { mutate: deletePost } = useMutation({
+        mutationFn: () => deletePostById(id, supabase),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["posts"] })
+            Alert.alert("Post deleted successfully")
+            router.back()
+        },
+        onError: (error) => {
+            Alert.alert("Error", error.message)
+        }
     })
 
     const detailedPost = data;
@@ -104,9 +125,37 @@ export default function DetailedPost() {
         );
     }
 
+    const isOwnerToDeletePost = currentUserId === detailedPost?.user_id
+
+    console.log('Current User ID:', currentUserId)
+    console.log('Post User ID:', detailedPost?.user_id)
+    console.log('Is Owner:', isOwnerToDeletePost)
 
     return (
         <Wrapper {...wrapperProps}>
+            <Stack.Screen
+                options={{
+                    headerRight: () =>
+
+                    (
+                        <Pressable onPress={() =>
+                            Alert.alert(
+                                "Delete post",
+                                "Are you sure?",
+                                [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Delete", style: "destructive", onPress: () => deletePost() },
+                                ]
+                            )
+                        }>
+                            <FontAwesome name="trash-o" size={20} color={colors.textSecondary} />
+                        </Pressable>
+                    ),
+
+                    headerBackButtonDisplayMode: 'minimal'
+
+
+                }} />
             <FlatList
                 data={postComments}
                 keyExtractor={(item) => item.id}
