@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native'
 import posts from '../../assets/data/posts.json'
 import { colors } from '../../constants/colors';
@@ -7,12 +7,14 @@ import { Tables } from '../../src/types/database.types'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { Link } from 'expo-router';
+import { useSupabase } from '../lib/supabase';
+import { useQuery } from '@tanstack/react-query';
 
 type Post = Tables<"posts"> & {
     // user: Tables<'users'>;
     group: Tables<'groups'>;
+    upvotes: { sum: number }[]
 }
-
 
 type PostListItemProps = {
     post: Post,
@@ -22,7 +24,8 @@ type PostListItemProps = {
 export default function PostListItem({ post, isDetailedPost = false }: PostListItemProps) {
     const shouldShowImage = isDetailedPost || post.image
     const shouldShowDescription = isDetailedPost || !post.image
-    // const post = posts[0];
+    const supabase = useSupabase()
+
     return (
         <Link href={`/post/${post.id}`} asChild >
             {/* <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}> */}
@@ -75,7 +78,7 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
                             <Text style={{
                                 fontFamily: "outfit-medium", fontWeight: '500', marginLeft: 5, alignSelf: 'center', color: colors.textPrimary
 
-                            }} >{post.upvotes}</Text>
+                            }} >{post.upvotes[0].sum || 0}</Text>
                             <View style={{ width: 1, backgroundColor: '#D4D4D4', height: 14, marginHorizontal: 7, alignSelf: 'center' }} />
                             <MaterialCommunityIcons name="minus-circle-outline" size={18} color={colors.appSecondary} />
                         </View>
