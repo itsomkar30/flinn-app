@@ -8,7 +8,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { Link } from 'expo-router';
 import { useSupabase } from '../lib/supabase';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createUpvote, selectVote } from '../services/upvoteService';
+import { useSession } from '@clerk/clerk-expo';
 
 type Post = Tables<"posts"> & {
     // user: Tables<'users'>;
@@ -25,6 +27,28 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
     const shouldShowImage = isDetailedPost || post.image
     const shouldShowDescription = isDetailedPost || !post.image
     const supabase = useSupabase()
+    const queryClient = useQueryClient()
+    const { session } = useSession()
+
+    const { mutate: upvote } = useMutation({
+        mutationFn: (value: 1 | -1) => createUpvote(post.id, value, supabase),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ["posts"] })
+            console.log(data)
+        }
+    })
+
+
+    const { data: myVote } = useQuery({
+        queryKey: ["posts", post.id, "upvote"],
+        queryFn: () => selectVote(post.id, session?.user.id, supabase)
+
+    })
+
+    console.log(myVote)
+
+    const isLiked = myVote?.value === 1
+    const isDisliked = myVote?.value === -1
 
     return (
         <Link href={`/post/${post.id}`} asChild >
@@ -74,13 +98,24 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                         <View style={[{ flexDirection: 'row' }, styles.iconBox]}>
-                            <MaterialCommunityIcons name="heart-outline" size={18} color={colors.appSecondary} />
+                            <MaterialCommunityIcons
+                                name={isLiked ? "heart" : "heart-outline"}
+                                size={18}
+                                color={isLiked ? colors.appTheme : colors.appSecondary}
+                                onPress={() => upvote(1)}
+                            />
                             <Text style={{
                                 fontFamily: "outfit-medium", fontWeight: '500', marginLeft: 5, alignSelf: 'center', color: colors.textPrimary
 
                             }} >{post.upvotes[0].sum || 0}</Text>
+
                             <View style={{ width: 1, backgroundColor: '#D4D4D4', height: 14, marginHorizontal: 7, alignSelf: 'center' }} />
-                            <MaterialCommunityIcons name="minus-circle-outline" size={18} color={colors.appSecondary} />
+                            <MaterialCommunityIcons
+                                name={isDisliked ? "minus-circle" : "minus-circle-outline"}
+                                size={18}
+                                color={isDisliked ? colors.appTheme : colors.appSecondary}
+                                onPress={() => upvote(-1)}
+                            />
                         </View>
 
                         <View style={[{ flexDirection: 'row' }, styles.iconBox]}>
