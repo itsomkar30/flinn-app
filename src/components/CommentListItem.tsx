@@ -1,12 +1,12 @@
-import { View, Text, Image, Pressable, FlatList } from "react-native";
-import { Entypo, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, Image, Pressable, FlatList, Alert } from "react-native";
+import { Entypo, Octicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { formatDistanceToNowStrict } from 'date-fns';
 import React, { useState, useRef, memo } from "react";
 import { colors } from "../../constants/colors";
 import { useSupabase } from "../lib/supabase";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tables } from "../types/database.types";
-import { fetchCommentsById } from "../services/commentFetchingService";
+import { deleteComment, fetchCommentsById } from "../services/commentFetchingService";
 
 type Comment = Tables<"comments">
 
@@ -20,10 +20,18 @@ let a = 0
 const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItemProps) => {
     console.log(`rendered ${a += 1}`)
     const supabase = useSupabase()
+    const queryClient = useQueryClient()
 
     const { data: replies } = useQuery({
         queryKey: ["comments", { parentId: comment.id }],
         queryFn: () => fetchCommentsById(comment.id, supabase)
+    })
+
+    const { mutate: removeComment } = useMutation({
+        mutationFn: () => deleteComment(comment.id, supabase),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["comments"] })
+        }
     })
 
     const [shouldShowReplies, setShouldShowReplies] = useState<boolean>(false)
@@ -59,7 +67,20 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
 
             {/* Comment Actions */}
             <View style={{ flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: 14 }}>
-                <Entypo name="dots-three-horizontal" size={15} color="#737373" />
+                <FontAwesome name="trash-o"
+                    size={15}
+                    color="#737373"
+                    onPress={() =>
+                        Alert.alert(
+                            "Delete Comment",
+                            "Are you sure you want to delete this comment?",
+                            [
+                                { text: "Cancel", style: "cancel" },
+                                { text: "Delete", style: "destructive", onPress: () => removeComment() }
+                            ]
+                        )
+                    }
+                />
                 <Octicons name="reply"
                     size={16}
                     color="#737373"
@@ -99,7 +120,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
             />
             )} */}
 
-            {shouldShowReplies && replies?.length && replies.map((item) => (
+            {shouldShowReplies && !!replies?.length && replies.map((item) => (
 
                 <CommentListItem comment={item}
                     key={comment.id}
