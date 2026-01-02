@@ -33,6 +33,43 @@ export const fetchPostsById = async (id: string, supabase: SupabaseClient<Databa
     }
 }
 
+
+
+
+
+export const fetchComments = async (
+    postId: string,
+    supabase: SupabaseClient<Database>,
+) => {
+    const { data, error } = await supabase
+        .from("comments")
+        .select("*, replies: comments(*)")
+        .eq("post_id", postId)
+        .is("parent_id", null)
+
+    if (error) {
+        throw error;
+    } else {
+        return data;
+    }
+}
+
+export const fetchCommentsById = async (
+    parent_id: string,
+    supabase: SupabaseClient<Database>,
+) => {
+    const { data, error } = await supabase
+        .from("comments")
+        .select("*, replies: comments(*)")
+        .eq("parent_id", parent_id)
+
+    if (error) {
+        throw error;
+    } else {
+        return data;
+    }
+}
+
 export const deletePostById = async (id: string, supabase: SupabaseClient<Database>) => {
     const { data, error } = await supabase.from("posts").delete().eq("id", id)
     if (error) {

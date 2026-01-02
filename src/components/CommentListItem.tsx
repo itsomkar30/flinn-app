@@ -1,9 +1,14 @@
 import { View, Text, Image, Pressable, FlatList } from "react-native";
 import { Entypo, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { Comment } from "../types";
 import React, { useState, useRef, memo } from "react";
 import { colors } from "../../constants/colors";
+import { useSupabase } from "../lib/supabase";
+import { fetchCommentsById, fetchPostsById } from "../services/postFetchingService";
+import { useQuery } from "@tanstack/react-query";
+import { Tables } from "../types/database.types";
+
+type Comment = Tables<"comments">
 
 type CommentListItemProps = {
     comment: Comment;
@@ -14,6 +19,13 @@ type CommentListItemProps = {
 let a = 0
 const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItemProps) => {
     console.log(`rendered ${a += 1}`)
+    const supabase = useSupabase()
+
+    const { data: replies } = useQuery({
+        queryKey: ["comments", { parentId: comment.id }],
+        queryFn: () => fetchCommentsById(comment.id, supabase)
+    })
+
     const [shouldShowReplies, setShouldShowReplies] = useState<boolean>(false)
     return (
         <View
@@ -28,7 +40,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
             }}
         >
             {/* User Info */}
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+            {/* <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
                 <Image
                     source={{
                         uri: comment.user.image || "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/3.jpg",
@@ -40,7 +52,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
                 <Text style={{ fontFamily: 'outfit', color: "#737373", fontSize: 13 }}>
                     {formatDistanceToNowStrict(new Date(comment.created_at))}
                 </Text>
-            </View>
+            </View> */}
 
             {/* Comment Content */}
             <Text style={{ fontFamily: 'outfit' }}>{comment.comment}</Text>
@@ -63,7 +75,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
             </View>
 
 
-            {!!comment.replies.length && !shouldShowReplies && (
+            {!!replies?.length && !shouldShowReplies && (
                 <Pressable
                     onPress={() => setShouldShowReplies(true)}
                     style={{
@@ -87,7 +99,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
             />
             )} */}
 
-            {shouldShowReplies && comment.replies.map((item) => (
+            {shouldShowReplies && replies?.length && replies.map((item) => (
 
                 <CommentListItem comment={item}
                     key={comment.id}

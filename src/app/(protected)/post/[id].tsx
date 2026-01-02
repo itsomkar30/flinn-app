@@ -2,12 +2,11 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Text, FlatList, TextInput, Platform, Pressable, Keyboard, Animated, ActivityIndicator, Alert, } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import comments from "../../../../assets/data/comments.json";
 import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
 import { colors } from "../../../../constants/colors";
 import { KeyboardAvoidingView } from "react-native";
-import { deletePostById, fetchPostsById } from "../../../services/postFetchingService";
+import { deletePostById, fetchPostsById, fetchComments } from "../../../services/postFetchingService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "../../../lib/supabase";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -30,6 +29,16 @@ export default function DetailedPost() {
         staleTime: 10_000
     })
 
+    console.log(JSON.stringify(data, null, 3))
+
+    const { data: comments } = useQuery({
+        queryKey: ["comments", { postId: id }],
+        queryFn: () => fetchComments(id, supabase)
+    })
+
+    console.log(JSON.stringify(comments, null, 3))
+
+
     const { mutate: deletePost } = useMutation({
         mutationFn: () => deletePostById(id, supabase),
         onSuccess: () => {
@@ -47,7 +56,7 @@ export default function DetailedPost() {
 
 
     // const detailedPost = posts.find((p) => p.id === id);
-    const postComments = comments.filter((c) => c.post_id === id);
+    // const postComments = comments.filter((c) => c.post_id === id);
     const [comment, setComment] = useState<string>("");
 
     const insets = useSafeAreaInsets();
@@ -136,7 +145,6 @@ export default function DetailedPost() {
             <Stack.Screen
                 options={{
                     headerRight: () =>
-
                     (
                         <Pressable onPress={() =>
                             Alert.alert(
@@ -157,7 +165,7 @@ export default function DetailedPost() {
 
                 }} />
             <FlatList
-                data={postComments}
+                data={comments}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) =>
                     <CommentListItem comment={item} depth={0} replyCommentButton={replyCommentButton} />
