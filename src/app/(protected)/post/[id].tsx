@@ -10,7 +10,7 @@ import { deletePostById, fetchPostsById } from "../../../services/postFetchingSe
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "../../../lib/supabase";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useUser } from "@clerk/clerk-expo";
+import { useSession, useUser } from "@clerk/clerk-expo";
 import { fetchComments, insertComment } from "../../../services/commentFetchingService";
 
 export default function DetailedPost() {
@@ -20,7 +20,7 @@ export default function DetailedPost() {
     const { user } = useUser();
     const currentUserId = user?.id;
     const [replyToParentId, setReplyToParentId] = useState<string | null>(null)
-
+    const { session } = useSession()
 
 
 
@@ -151,10 +151,11 @@ export default function DetailedPost() {
         );
     }
 
-    const isOwnerToDeletePost = currentUserId === detailedPost?.user_id
+    const isOwnerToDeletePost = true // Temporary: show for all posts until user_id is fixed
 
     console.log('Current User ID:', currentUserId)
     console.log('Post User ID:', detailedPost?.user_id)
+    console.log('Full Post Data:', detailedPost)
     console.log('Is Owner:', isOwnerToDeletePost)
 
     return (
@@ -173,7 +174,11 @@ export default function DetailedPost() {
                                 ]
                             )
                         }>
-                            <FontAwesome name="trash-o" size={20} color={colors.textSecondary} />
+                            {session?.user.id === detailedPost.user_id &&
+                                < FontAwesome name="trash-o"
+                                    size={20}
+                                    color={colors.textSecondary}
+                                />}
                         </Pressable>
                     ),
 

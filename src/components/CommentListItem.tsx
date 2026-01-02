@@ -7,6 +7,7 @@ import { useSupabase } from "../lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tables } from "../types/database.types";
 import { deleteComment, fetchCommentsById } from "../services/commentFetchingService";
+import { useSession } from "@clerk/clerk-expo";
 
 type Comment = Tables<"comments">
 
@@ -21,6 +22,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
     console.log(`rendered ${a += 1}`)
     const supabase = useSupabase()
     const queryClient = useQueryClient()
+    const { session } = useSession()
 
     const { data: replies } = useQuery({
         queryKey: ["comments", { parentId: comment.id }],
@@ -67,20 +69,22 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
 
             {/* Comment Actions */}
             <View style={{ flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: 14 }}>
-                <FontAwesome name="trash-o"
-                    size={15}
-                    color="#737373"
-                    onPress={() =>
-                        Alert.alert(
-                            "Delete Comment",
-                            "Are you sure you want to delete this comment?",
-                            [
-                                { text: "Cancel", style: "cancel" },
-                                { text: "Delete", style: "destructive", onPress: () => removeComment() }
-                            ]
-                        )
-                    }
-                />
+                {session?.user.id === comment.user_id &&
+                    <FontAwesome name="trash-o"
+                        size={15}
+                        color="#737373"
+                        onPress={() =>
+                            Alert.alert(
+                                "Delete Comment",
+                                "Are you sure you want to delete this comment?",
+                                [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Delete", style: "destructive", onPress: () => removeComment() }
+                                ]
+                            )
+                        }
+                    />
+                }
                 <Octicons name="reply"
                     size={16}
                     color="#737373"

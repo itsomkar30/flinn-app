@@ -120,7 +120,7 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
 
                         <View style={[{ flexDirection: 'row' }, styles.iconBox]}>
                             <MaterialCommunityIcons name="chat-outline" size={18} color={colors.appSecondary} />
-                            <Text style={{ fontFamily: "outfit-medium", marginLeft: 5, alignSelf: 'center', color: colors.textPrimary }} >{post.nr_of_comments}</Text>
+                            <Text style={{ fontFamily: "outfit-medium", marginLeft: 5, alignSelf: 'center', color: colors.textPrimary }} >{post.nr_of_comments[0]?.count}</Text>
                         </View>
 
                     </View>
