@@ -4,9 +4,9 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import React, { useState, useRef, memo } from "react";
 import { colors } from "../../constants/colors";
 import { useSupabase } from "../lib/supabase";
-import { fetchCommentsById, fetchPostsById } from "../services/postFetchingService";
 import { useQuery } from "@tanstack/react-query";
 import { Tables } from "../types/database.types";
+import { fetchCommentsById } from "../services/commentFetchingService";
 
 type Comment = Tables<"comments">
 

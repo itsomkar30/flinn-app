@@ -6,11 +6,12 @@ import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
 import { colors } from "../../../../constants/colors";
 import { KeyboardAvoidingView } from "react-native";
-import { deletePostById, fetchPostsById, fetchComments } from "../../../services/postFetchingService";
+import { deletePostById, fetchPostsById } from "../../../services/postFetchingService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "../../../lib/supabase";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useUser } from "@clerk/clerk-expo";
+import { fetchComments, insertComment } from "../../../services/commentFetchingService";
 
 export default function DetailedPost() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,18 +19,19 @@ export default function DetailedPost() {
     const queryClient = useQueryClient()
     const { user } = useUser();
     const currentUserId = user?.id;
+    const [replyToParentId, setReplyToParentId] = useState<string | null>(null)
 
 
 
 
 
-    const { data, isLoading, error } = useQuery({
+    const { data: detailedPost, isLoading, error } = useQuery({
         queryKey: ["posts", id],
         queryFn: () => fetchPostsById(id, supabase),
         staleTime: 10_000
     })
 
-    console.log(JSON.stringify(data, null, 3))
+    console.log(JSON.stringify(detailedPost, null, 3))
 
     const { data: comments } = useQuery({
         queryKey: ["comments", { postId: id }],
@@ -51,7 +53,7 @@ export default function DetailedPost() {
         }
     })
 
-    const detailedPost = data;
+    // const detailedPost = data;
 
 
 
@@ -109,9 +111,15 @@ export default function DetailedPost() {
     const replyCommentButton = useCallback(
         (comment: string) => {
             console.log(comment)
+            setReplyToParentId(comment)
             textInputRef.current?.focus()
         }, []
     )
+
+
+    const { mutate: createComment } = useMutation({
+        mutationFn: () => insertComment({ comment, post_id: id, parent_id: replyToParentId }, supabase)
+    })
 
 
 
@@ -126,7 +134,7 @@ export default function DetailedPost() {
         );
     }
 
-    if (error || !data) {
+    if (error || !detailedPost) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontFamily: 'outfit' }}>Failed to load posts</Text>
@@ -220,6 +228,7 @@ export default function DetailedPost() {
                 />
 
                 <Pressable
+                    onPress={() => createComment()}
                     style={{
                         marginLeft: 8,
                         borderRadius: 99,
