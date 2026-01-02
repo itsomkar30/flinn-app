@@ -118,7 +118,16 @@ export default function DetailedPost() {
 
 
     const { mutate: createComment } = useMutation({
-        mutationFn: () => insertComment({ comment, post_id: id, parent_id: replyToParentId }, supabase)
+        mutationFn: () => insertComment({ comment, post_id: id, parent_id: replyToParentId }, supabase),
+
+        onSuccess: (data) => {
+            setComment("")
+            setReplyToParentId(null)
+            Keyboard.dismiss();
+            textInputRef.current?.blur();
+            queryClient.invalidateQueries({ queryKey: ["comments", { postId: id }] })
+            queryClient.invalidateQueries({ queryKey: ["comments", { parentId: replyToParentId }] })
+        }
     })
 
 
