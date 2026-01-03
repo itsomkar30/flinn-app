@@ -20,6 +20,44 @@ import { AntDesign } from '@expo/vector-icons';
 
 type InsertPost = TablesInsert<"posts">
 
+const insertPost = async (post: InsertPost, supabase: SupabaseClient<Database>) => {
+  const { data, error } = await supabase.from("posts")
+    .insert(post)
+    .select().
+    single();
+
+  if (error) {
+    throw error
+  }
+  else {
+    return data
+  }
+}
+
+const uploadImage = async (localUri: string, supabase: SupabaseClient<Database>) => {
+  const fileRes = await fetch(localUri);
+  const arrayBuffer = await fileRes.arrayBuffer();
+
+
+  const fileExt = localUri.split(".").pop()?.toLowerCase() ?? "jpeg";
+  const path = `${Date.now()}.${fileExt}`;
+
+  const { error, data } = await supabase.storage
+    .from("images")
+    .upload(path, arrayBuffer);
+
+  console.log(error);
+  console.log(data);
+
+  if (error) {
+    throw error;
+  } else {
+    return data.path;
+  }
+}
+
+
+
 export default function CreateScreen() {
 
   const [title, setTitle] = useState<string>("")
@@ -30,23 +68,11 @@ export default function CreateScreen() {
   const { user } = useUser();
   const supabase = useSupabase()
 
-  const insertPost = async (post: InsertPost, supabase: SupabaseClient<Database>) => {
-    const { data, error } = await supabase.from("posts")
-      .insert(post)
-      .select().
-      single();
 
-    if (error) {
-      throw error
-    }
-    else {
-      return data
-    }
-  }
 
 
   const { mutate, isPending, data, error } = useMutation({
-    mutationFn: () => {
+    mutationFn: (image: string | undefined) => {
       if (!clan) {
         throw new Error("Please select a clan")
       }
@@ -58,6 +84,7 @@ export default function CreateScreen() {
         title,
         description: postText,
         group_id: clan.id,
+        image
       },
         supabase
       )
@@ -104,7 +131,13 @@ export default function CreateScreen() {
     }
   };
 
+  const onPostClick = async () => {
+    let imagePath = image ? await uploadImage(image, supabase) : undefined
 
+
+
+    mutate(imagePath)
+  }
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.appPrimary, flex: 1, paddingHorizontal: 10 }}>
@@ -114,7 +147,7 @@ export default function CreateScreen() {
       <View style={{ flexDirection: 'row', alignItems: 'center' }} >
         <Ionicons name="close-sharp" size={28} color="black" onPress={() => router.back()} />
         <Pressable
-          onPress={() => mutate()}
+          onPress={() => onPostClick()}
           disabled={isPending}
           style={{ marginLeft: 'auto' }} >
           <Text style={styles.postButton} >
