@@ -91,12 +91,7 @@ const CommentListItem = ({ comment, depth, replyCommentButton }: CommentListItem
                     onPress={() => replyCommentButton(comment.id)}
                 />
 
-                <MaterialCommunityIcons name="trophy-outline" size={16} color="#737373" />
-                <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
-                    <MaterialCommunityIcons name="heart-outline" size={18} color="#737373" />
-                    <Text style={{ fontWeight: "500", color: "#737373" }}>{comment.upvotes}</Text>
-                    <MaterialCommunityIcons name="minus-circle-outline" size={18} color="#737373" />
-                </View>
+
             </View>
 
 

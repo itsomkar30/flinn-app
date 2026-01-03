@@ -77,12 +77,12 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
                     <View>
                         <View style={{ flexDirection: 'row', gap: 5 }} >
                             <Text style={{ fontFamily: "outfit", fontWeight: 'bold', color: colors.textPrimary }} >{post.group.name}</Text>
-                            <Text style={{ fontFamily: "outfit", color: "grey" }} >{formatDistanceToNowStrict(new Date(post.created_at))}</Text>
+                            {/* <Text style={{ fontFamily: "outfit", color: "grey" }} >{formatDistanceToNowStrict(new Date(post.created_at))}</Text> */}
                         </View>
                         {isDetailedPost && <Text style={{ color: 'grey', fontSize: 13 }} >{post.user?.name}</Text>}
                     </View>
                     <View style={{ marginLeft: "auto" }}>
-                        <Text style={styles.joinBtn}>Join</Text>
+                        <Text style={styles.joinBtn}>{formatDistanceToNowStrict(new Date(post.created_at))} ago</Text>
                     </View>
                 </View>
 
@@ -136,10 +136,10 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
 
                     </View>
 
-                    <View style={{ flexDirection: "row", marginLeft: "auto", gap: 10 }} >
+                    {/* <View style={{ flexDirection: "row", marginLeft: "auto", gap: 10 }} >
                         <MaterialCommunityIcons name="star-outline" size={18} color={colors.appSecondary} style={styles.iconBox} />
                         <MaterialCommunityIcons name="share-outline" size={18} color={colors.appSecondary} style={styles.iconBox} />
-                    </View>
+                    </View> */}
 
                 </View>
 
@@ -153,10 +153,11 @@ const styles = StyleSheet.create({
     joinBtn: {
         backgroundColor: colors.appSecondary,
         color: colors.appPrimary,
-        paddingVertical: 2,
+        paddingVertical: 1.5,
         fontFamily: "outfit-medium",
         paddingHorizontal: 8,
-        borderRadius: 10
+        borderRadius: 10,
+        fontSize: 12
     },
     groupIcon: {
         height: 20,
