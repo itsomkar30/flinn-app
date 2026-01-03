@@ -5,13 +5,14 @@ import { colors } from '../../constants/colors';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Database, Tables } from '../../src/types/database.types'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
+import { downloadImage } from '../services/supabaseImageService'
 import { Link } from 'expo-router';
 import { useSupabase } from '../lib/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createUpvote, selectVote } from '../services/upvoteService';
 import { useSession } from '@clerk/clerk-expo';
 import { SupabaseClient } from '@supabase/supabase-js';
+import SupabaseImage from './SupabaseImage';
 
 type Post = Tables<"posts"> & {
     // user: Tables<'users'>;
@@ -25,36 +26,7 @@ type PostListItemProps = {
 }
 
 
-const downloadImage = async (image: string, supabase: SupabaseClient<Database>) => {
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            const { error, data } = await supabase
-                .storage.from("images")
-                .download(image)
-
-            if (error) {
-                return reject(error)
-            }
-
-            const fr = new FileReader()
-            fr.readAsDataURL(data)
-            fr.onload = () => {
-                resolve(
-                    fr.result as string
-                )
-                // setAvatarUrl(fr.result as string)
-
-            }
-
-        } catch (error) {
-            reject(error)
-        }
-
-
-    })
-
-}
 
 export default function PostListItem({ post, isDetailedPost = false }: PostListItemProps) {
     const shouldShowImage = isDetailedPost || post.image
@@ -62,7 +34,7 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
     const supabase = useSupabase()
     const queryClient = useQueryClient()
     const { session } = useSession()
-    const [image, setImage] = useState<string>()
+    // const [image, setImage] = useState<string>()
 
     const { mutate: upvote } = useMutation({
         mutationFn: (value: 1 | -1) => createUpvote(post.id, value, supabase),
@@ -84,11 +56,6 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
     const isLiked = myVote?.value === 1
     const isDisliked = myVote?.value === -1
 
-    useEffect(() => {
-        if (post.image) {
-            downloadImage(post.image, supabase).then(setImage)
-        }
-    }, [post.image])
 
     return (
         <Link href={`/post/${post.id}`} asChild >
@@ -124,7 +91,11 @@ export default function PostListItem({ post, isDetailedPost = false }: PostListI
                 <Text style={styles.postTitle}>{post.title}</Text>
 
                 {post.image && (
-                    <Image source={{ uri: image }} style={styles.postImage} />
+                    <SupabaseImage
+                        path={post.image}
+                        bucket='images'
+                        style={styles.postImage}
+                    />
                 )}
 
                 {shouldShowDescription && post.description && (

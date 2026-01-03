@@ -1,5 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js"
-import { Database } from "../types/database.types"
+import { Database, TablesInsert } from "../types/database.types"
+
+type InsertPost = TablesInsert<"posts">
 
 export const fetchPosts = async (supabase: SupabaseClient<Database>) => {
     const { error, data } = await supabase.from("posts")
@@ -40,6 +42,21 @@ export const deletePostById = async (id: string, supabase: SupabaseClient<Databa
     if (error) {
         throw error
     } else {
+        return data
+    }
+}
+
+
+export const insertPost = async (post: InsertPost, supabase: SupabaseClient<Database>) => {
+    const { data, error } = await supabase.from("posts")
+        .insert(post)
+        .select().
+        single();
+
+    if (error) {
+        throw error
+    }
+    else {
         return data
     }
 }
