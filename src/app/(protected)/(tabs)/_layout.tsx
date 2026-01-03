@@ -40,15 +40,6 @@ export default function TabLayout() {
             }} />
 
 
-            <Tabs.Screen name="chat" options={{
-                title: "Chat",
-                headerTitleAlign: "center",
-                headerTintColor: colors.appTheme,
-                headerTitleStyle: {
-                    fontFamily: "outfit",
-                },
-                tabBarIcon: ({ color }) => <Feather name="users" size={20} color={color} />
-            }} />
 
             <Tabs.Screen name="create" options={{
                 title: "Create",
@@ -74,8 +65,8 @@ export default function TabLayout() {
             }} />
 
 
-            <Tabs.Screen name="inbox" options={{
-                title: "Inbox",
+            <Tabs.Screen name="notifications" options={{
+                title: "Notifs",
                 headerTitleAlign: "center",
                 headerTintColor: colors.appTheme,
                 headerTitleStyle: {
