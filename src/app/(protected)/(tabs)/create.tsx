@@ -148,7 +148,8 @@ export default function CreateScreen() {
           <TextInput placeholder='Title'
             value={title}
             onChangeText={(text) => setTitle(text)}
-            style={{ fontSize: 20, fontFamily: 'outfit-bold', letterSpacing: 0.7 }}
+            placeholderTextColor="grey"
+            style={{ fontSize: 20, fontFamily: 'outfit-bold', letterSpacing: 0.7, color: colors.textPrimary }}
             multiline
             scrollEnabled={false} />
 
@@ -180,7 +181,8 @@ export default function CreateScreen() {
           <TextInput placeholder='Post text (optional)'
             value={postText}
             onChangeText={(text) => setPostText(text)}
-            style={{ fontSize: 16, fontFamily: 'outfit', letterSpacing: 0.7 }}
+            placeholderTextColor="grey"
+            style={{ fontSize: 16, fontFamily: 'outfit', letterSpacing: 0.7, color: colors.textPrimary }}
             multiline
             scrollEnabled={false} />
 

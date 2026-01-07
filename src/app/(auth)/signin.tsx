@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 15,
         backgroundColor: "white",
+        color: colors.textPrimary,
     },
     signUpContainer: {
         flexDirection: "row",
